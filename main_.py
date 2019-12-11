@@ -38,22 +38,21 @@ class TORI_Record():
         8. Beta table     (ascii)
         """
         self.url = url
-
-        self.page_flag = False
-        self.mass_flag = False
-        self.charge_flag=False
-        self.name_flag = False
-        self.t_h_flag  = False
-        self.g_tab_flag= False
-        self.x_tab_flag= False
-        self.b_tab_flag= False
-        #self.half_time = self.get
-
+        #
         any_number_pattern = "(-*)([\d]+)(\.*)([\d]*)(E*)(e*)(D*)(d*)([+]*)([-]*)([\d]*)"
         self.any_number = re.compile(any_number_pattern)
-
+        #
         self.page = requests.get(url)
         self.soup = BeautifulSoup(self.page.content, 'html.parser')
+        #
+        # data tables
+        self.gamma =[]
+        self.beta = []
+        self.xray = []
+        self.half_life  = None
+        self.charge     = None
+        self.mass       = None
+        self.name       = None
         self.init_()
 
 
@@ -116,89 +115,45 @@ class TORI_Record():
                     self.name =   heads[i - 3][1]  # [1]
 
                 if "Gammas from" in h[0]:
-                    print("----------------------------------------------------")
-                    gamma = []
                     i += 3     # skip header
                     d = get_next_data_line(data, i)
                     while d is not None:
-                        gamma.append(d)
+                        self.gamma.append(d)
                         i += 1
                         d = get_next_data_line(data, i)
                     i -= 1
                 if "X-rays from" in h[0]:
-                    print("----------------------------------------------------")
-                    xray = []
                     i += 3     # skip header
                     d = get_next_data_line(data, i)
                     while d is not None:
-                        xray.append(d)
+                        self.xray.append(d)
                         i += 1
                         d = get_next_data_line(data, i)
                     i -= 1
                 if "Betas from" in h[0]:
-                    print(" ----------------------------------------------------")
-                    beta = []
                     i += 3     # skip header
                     d = get_next_data_line(data, i)
                     while d is not None:
-                        beta.append(d)
+                        self.beta.append(d)
                         i += 1
                         d = get_next_data_line(data, i)
                     i -= 1
                 i += 1
-            print('gamma', gamma)
-            print('xrays', xray)
-            print('beta', beta)
-            #print(len(heads[1]))
-            """
-            for i in range(len(tables)):
-                table = tables[i]
-                rows = table.find_all('tr')
-                heads = []
-                data =[]
-                j = 0
-                while j < len(rows):
+                sec_year = 31556952.
+                sec_day = 86400.
+                sec_hour = 3600.
 
-                    if self.t_h_flag is False:
-                        row = rows[j]
-                        head_ = [i.text for i in row.find_all('th')]
-                        data_ = [i.text for i in row.find_all('td')]
-                        heads.append(head_)
-                        data.append(data_)
-                        if len(head_) > 0:
-                            if len(re.findall("Half life: ", head_[0])) > 0:
-                                self.half_life = data_[0].split('\xa0')
-                                self.t_h_flag = True
-                                self.charge = heads[j-2][0]#[0]
-                                self.mass   = heads[j-3][0]#[0]
-                                self.name   = heads[j-3][1]#[1]
-            """
-            """
-                    if self.g_tab_flag is False:
-                        row = rows[j]
-                        head_ = [i.text for i in row.find_all('th')]
-                        data_ = [i.text for i in row.find_all('td')]
-                        heads.append(head_)
-                        data.append(data_)
-                        if len(head_) > 0:
-                            if len(re.findall("Gammas from ", head_[0])) > 0:
-                                gamma_table = []
-                                self.g_tab_flag = True
-                        print(data_)
-            """
-                    #j += 1
 
-            "X-rays from"
-            "Betas from"
-            "Gammas from"
-            #print(tables[1])
+#class TORI_DB()
 
 
 
 ref = "http://nucleardata.nuclear.lu.se/toi/nuclide.asp?iZA=550134"
 t = TORI_Record(ref)
-print(t.half_life, t.charge, t.mass,  t.name)
-#print(t)
+#print(t.half_life, t.charge, t.mass,  t.name)
+#print(t.gamma)
+#html = t.soup.prettify()
+#print(type(html))
 
 """
 if status[0] == '2': # successfully downloaded
